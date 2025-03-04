@@ -1,12 +1,12 @@
 const todoForm = document.querySelector("#todoForm");
 const todoList = document.querySelector("#todoList");
-
-let toDos = [];
 const TODOS_KEY = "todos"
 
+let toDos = [];
 
-function saveToDos() {
-    localStorage.setItem(TODOS_KEY, JSON.stringify(toDos));
+
+function saveToDos(todoList) {
+    localStorage.setItem(TODOS_KEY, JSON.stringify(todoList));
 
 }
 
@@ -18,16 +18,20 @@ todoForm.addEventListener("submit", (event) => {
     if (!inputVal) return alert("값을 입력하세요")
     else {
 
-        toDos.push(inputVal);
-        saveToDos();
+        const newTodoObj = {
+            id: Date.now(),
+            text: inputVal,
+        }
+        toDos.push(newTodoObj);
+        saveToDos(toDos);
 
-        addTodo(inputVal);
+        addTodo(newTodoObj);
         todoInput.value = "";
     }
 
 })
 
-const addTodo = (value) => {
+const addTodo = (todoObj) => {
     //1번 방식
     // todoList.innerHTML += `
     // <li>
@@ -38,7 +42,8 @@ const addTodo = (value) => {
 
     //2번방식
     const todoLi = document.createElement("li");
-    todoLi.append(value);
+    todoLi.id = todoObj.id;
+    todoLi.append(todoObj.text);
     const deleteBtn = document.createElement("button");
     deleteBtn.textContent = "done";
     todoLi.appendChild(deleteBtn);
@@ -47,9 +52,15 @@ const addTodo = (value) => {
     //이벤트 리스너 추가
     deleteBtn.addEventListener("click", (event) => {
         console.dir(event.target);
-        event.target.closest("li").remove();
-        toDos = toDos.filter(item => item !== event.target.closest("li"))
-        saveToDos();
+        const li = event.target.closest("li")
+        li.remove();
+        const newTodoList = toDos.filter((obj) => {
+            //하나는 숫자고 하나는 문자이기 때문에 비교시 형비교 주의
+            return obj.id != li.id
+        });
+        console.log(newTodoList);
+
+        saveToDos(newTodoList);
     })
 
 };
